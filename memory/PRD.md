@@ -72,3 +72,11 @@ Build a real-time multiplayer chess web app with integrated chat system.
   - Checkmate: dramatic descending tone (SAN contains '#')
   - Draw/stalemate: game-over sound on state change
   - Join/reset: soft notification ping
+
+### Game-Over CTA Modal (Feb 2026)
+- New component: `GameOverModal.jsx` — overlays the chessboard on game end
+- Detects: checkmate, stalemate, draw (insufficient material, fifty-move, threefold repetition)
+- Displays result headline + CTA text with 400ms delayed fade-in
+- CTA links to https://app.emergent.sh/register?ref=timo990308 (target=_blank)
+- "Play Again" button (players only, not spectators) emits reset_game via Socket.IO
+- Dimmed backdrop with backdrop-blur, smooth scale-in animation
