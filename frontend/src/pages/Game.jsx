@@ -8,6 +8,7 @@ import MoveHistory from "@/components/MoveHistory";
 import GameStatus from "@/components/GameStatus";
 import PlayerInfo from "@/components/PlayerInfo";
 import UsernameModal from "@/components/UsernameModal";
+import GameOverModal from "@/components/GameOverModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -311,7 +312,7 @@ export default function Game() {
           </div>
 
           {/* Board area */}
-          <div className="w-full" style={{ maxWidth: "min(85vh, 100%)" }}>
+          <div className="w-full relative" style={{ maxWidth: "min(85vh, 100%)" }}>
             <PlayerInfo
               gameState={gameState}
               playerColor={playerColor}
@@ -319,7 +320,7 @@ export default function Game() {
               orientation={orientation}
             />
 
-            <div className={gameState.isCheck && !gameState.isGameOver ? "animate-check-pulse rounded-sm" : ""}>
+            <div className={`relative ${gameState.isCheck && !gameState.isGameOver ? "animate-check-pulse rounded-sm" : ""}`}>
               <ChessBoard
                 fen={gameState.fen}
                 orientation={orientation}
@@ -328,6 +329,15 @@ export default function Game() {
                 isMyTurn={isMyTurn}
                 playerColor={playerColor}
               />
+
+              {/* Game-over overlay positioned on top of the board */}
+              {gameState.isGameOver && (
+                <GameOverModal
+                  gameState={gameState}
+                  playerColor={playerColor}
+                  onPlayAgain={playerColor !== "spectator" ? handleReset : null}
+                />
+              )}
             </div>
 
             <PlayerInfo
