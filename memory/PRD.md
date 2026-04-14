@@ -61,3 +61,14 @@ Build a real-time multiplayer chess web app with integrated chat system.
 - Share room link via social
 - Mobile-optimized touch interactions
 - Rematch button
+
+## Update Log - Feb 2026 (Post-MVP)
+### Changes Applied
+- **Board colors**: Changed from high-contrast (#262626/#F8F9FA) to classic brown/cream (#B58863/#F0D9B5) per user request
+- **Sound effects**: Added Web Audio API-generated sounds:
+  - Regular move: short wood tap
+  - Capture: deeper thud (triggered when SAN contains 'x')
+  - Check: two-tone alert (SAN contains '+')
+  - Checkmate: dramatic descending tone (SAN contains '#')
+  - Draw/stalemate: game-over sound on state change
+  - Join/reset: soft notification ping
