@@ -173,8 +173,22 @@ export default function Game() {
   };
 
   const copyRoomLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("Room link copied!");
+    const url = window.location.href;
+    try {
+      // Fallback: use a temporary textarea for environments where Clipboard API is blocked
+      const textarea = document.createElement("textarea");
+      textarea.value = url;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      toast.success("Room link copied!");
+    } catch {
+      // If even execCommand fails, show the link for manual copy
+      toast.info(`Room: ${roomId}`);
+    }
   };
 
   const handleToggleMute = () => {
