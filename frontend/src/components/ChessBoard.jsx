@@ -3,9 +3,8 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 
 /**
- * ChessBoard wrapper with legal move highlighting and last-move highlight.
- * All move validation is server-authoritative — this component only does
- * client-side pre-validation for UX (legal move dots, snap-back).
+ * ChessBoard wrapper using react-chessboard v5 API.
+ * All config goes through the `options` prop.
  */
 export default function ChessBoard({
   fen,
@@ -18,7 +17,6 @@ export default function ChessBoard({
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [legalMoves, setLegalMoves] = useState([]);
 
-  // Sync a local chess.js instance to the current FEN for legal-move lookups
   const game = useMemo(() => {
     try {
       return new Chess(fen);
@@ -27,18 +25,16 @@ export default function ChessBoard({
     }
   }, [fen]);
 
-  // Build custom square styles (last move highlight + legal move dots)
-  const customSquareStyles = useMemo(() => {
+  // Square highlight styles
+  const squareStyles = useMemo(() => {
     const styles = {};
 
-    // Highlight last move
     if (lastMove) {
       const hl = { backgroundColor: "rgba(254, 240, 138, 0.5)" };
       styles[lastMove.from] = hl;
       styles[lastMove.to] = hl;
     }
 
-    // Highlight selected square
     if (selectedSquare) {
       styles[selectedSquare] = {
         ...styles[selectedSquare],
@@ -46,7 +42,6 @@ export default function ChessBoard({
       };
     }
 
-    // Legal move dots / capture rings
     legalMoves.forEach((m) => {
       const occupied = game.get(m.to);
       if (occupied) {
@@ -67,29 +62,40 @@ export default function ChessBoard({
     return styles;
   }, [lastMove, selectedSquare, legalMoves, game]);
 
-  // Called when a piece drag begins
-  const onPieceDragBegin = useCallback(
-    (_piece, sourceSquare) => {
+  // v5: canDragPiece({ piece: { pieceType }, square }) => boolean
+  const canDragPiece = useCallback(
+    ({ piece }) => {
       if (!isMyTurn) return false;
+      const pt = piece.pieceType;
+      if (playerColor === "white" && pt[0] === "w") return true;
+      if (playerColor === "black" && pt[0] === "b") return true;
+      return false;
+    },
+    [isMyTurn, playerColor]
+  );
+
+  // v5: onPieceDrag({ piece, sourceSquare })
+  const onPieceDrag = useCallback(
+    ({ sourceSquare }) => {
+      if (!isMyTurn) return;
       const moves = game.moves({ square: sourceSquare, verbose: true });
       setSelectedSquare(sourceSquare);
       setLegalMoves(moves);
-      return true;
     },
     [isMyTurn, game]
   );
 
-  // Called when a piece is dropped
+  // v5: onPieceDrop({ piece, sourceSquare, targetSquare }) => boolean
   const onPieceDrop = useCallback(
-    (sourceSquare, targetSquare, piece) => {
-      // Check for promotion
-      const isPromotion =
-        piece[1] === "P" &&
-        (targetSquare[1] === "8" || targetSquare[1] === "1");
+    ({ piece, sourceSquare, targetSquare }) => {
+      if (!targetSquare) return false;
 
+      const pt = piece.pieceType;
+      const isPromotion =
+        pt[1] === "P" &&
+        (targetSquare[1] === "8" || targetSquare[1] === "1");
       const promo = isPromotion ? "q" : undefined;
 
-      // Client-side pre-validation
       try {
         const testGame = new Chess(fen);
         const result = testGame.move({
@@ -108,74 +114,79 @@ export default function ChessBoard({
         return false;
       }
 
-      // Send to server (server is authoritative)
       onMove(sourceSquare, targetSquare, promo);
-
       setSelectedSquare(null);
       setLegalMoves([]);
-      return true; // optimistic update
+      return true;
     },
     [fen, onMove]
   );
 
-  // Click-to-move support
+  // v5: onSquareClick({ piece, square })
   const onSquareClick = useCallback(
-    (square) => {
+    ({ square, piece: squarePiece }) => {
       if (!isMyTurn) return;
 
       if (selectedSquare) {
-        // Try making a move to the clicked square
         const moveMatch = legalMoves.find((m) => m.to === square);
         if (moveMatch) {
           const promo = moveMatch.promotion ? "q" : undefined;
-          onMove(selectedSquare, square, promo);
-          setSelectedSquare(null);
-          setLegalMoves([]);
-          return;
+          try {
+            const testGame = new Chess(fen);
+            const result = testGame.move({
+              from: selectedSquare,
+              to: square,
+              promotion: promo,
+            });
+            if (result) {
+              onMove(selectedSquare, square, promo);
+              setSelectedSquare(null);
+              setLegalMoves([]);
+              return;
+            }
+          } catch {
+            // Fall through
+          }
         }
       }
 
-      // Select a new piece
-      const moves = game.moves({ square, verbose: true });
-      if (moves.length > 0) {
-        setSelectedSquare(square);
-        setLegalMoves(moves);
+      // Select or deselect
+      if (squarePiece) {
+        const moves = game.moves({ square, verbose: true });
+        if (moves.length > 0) {
+          setSelectedSquare(square);
+          setLegalMoves(moves);
+        } else {
+          setSelectedSquare(null);
+          setLegalMoves([]);
+        }
       } else {
         setSelectedSquare(null);
         setLegalMoves([]);
       }
     },
-    [isMyTurn, selectedSquare, legalMoves, game, onMove]
-  );
-
-  // Only allow dragging own pieces
-  const isDraggablePiece = useCallback(
-    ({ piece }) => {
-      if (!isMyTurn) return false;
-      if (playerColor === "white" && piece[0] === "w") return true;
-      if (playerColor === "black" && piece[0] === "b") return true;
-      return false;
-    },
-    [isMyTurn, playerColor]
+    [isMyTurn, selectedSquare, legalMoves, game, onMove, fen]
   );
 
   return (
     <div data-testid="chess-board">
       <Chessboard
-        position={fen}
-        boardOrientation={orientation}
-        onPieceDrop={onPieceDrop}
-        onPieceDragBegin={onPieceDragBegin}
-        onSquareClick={onSquareClick}
-        isDraggablePiece={isDraggablePiece}
-        customSquareStyles={customSquareStyles}
-        customDarkSquareStyle={{ backgroundColor: "#262626" }}
-        customLightSquareStyle={{ backgroundColor: "#F8F9FA" }}
-        customBoardStyle={{
-          borderRadius: "2px",
-          boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+        options={{
+          position: fen,
+          boardOrientation: orientation,
+          onPieceDrop,
+          onPieceDrag,
+          onSquareClick,
+          canDragPiece,
+          squareStyles,
+          darkSquareStyle: { backgroundColor: "#262626" },
+          lightSquareStyle: { backgroundColor: "#F8F9FA" },
+          boardStyle: {
+            borderRadius: "2px",
+            boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+          },
+          animationDurationInMs: 200,
         }}
-        animationDuration={200}
       />
     </div>
   );

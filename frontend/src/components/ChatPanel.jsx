@@ -79,7 +79,7 @@ export default function ChatPanel({ messages, onSend, username }) {
       </ScrollArea>
 
       {/* Input */}
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border relative z-50">
         <div className="flex gap-2">
           <Input
             data-testid="chat-input"
