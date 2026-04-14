@@ -1,0 +1,82 @@
+{
+  "theme": "light",
+  "archetype": "Swiss & High-Contrast",
+  "rationale": "For a real-time chess app, clarity and focus are paramount. A Swiss-inspired minimalist light theme reduces cognitive load, keeps attention entirely on the board, and ensures high contrast for move readability and chat integration.",
+  "typography": {
+    "headings": {
+      "family": "Cabinet Grotesk, sans-serif",
+      "weights": ["light", "bold", "black"],
+      "usage": "Use for primary page titles, room ID headers, and modal titles. Must use tracking-tight or tracking-tighter."
+    },
+    "body": {
+      "family": "IBM Plex Sans, sans-serif",
+      "weights": ["regular", "medium", "semibold"],
+      "usage": "Use for chat messages, usernames, button labels, and general UI. Keeps an objective, technical tone."
+    },
+    "mono": {
+      "family": "IBM Plex Mono, monospace",
+      "usage": "CRITICAL: Use for chess move notation (e.g., e4, Nf3), timers, and Room URL links. Adds a structural/data feel."
+    }
+  },
+  "colors": {
+    "background": "#FFFFFF",
+    "foreground": "#0A0A0A",
+    "surface": "#F4F4F5",
+    "surface_hover": "#E4E4E7",
+    "border": "#E4E4E7",
+    "primary": "#0A0A0A",
+    "primary_foreground": "#FFFFFF",
+    "accent_blue": "#002FA7",
+    "accent_red": "#FF3B30",
+    "chessboard": {
+      "light": "#F8F9FA",
+      "dark": "#262626",
+      "highlight_last_move": "rgba(254, 240, 138, 0.5)",
+      "legal_move_dot": "rgba(0, 0, 0, 0.2)"
+    }
+  },
+  "layout": {
+    "overall_structure": "Fullscreen split-screen layout (h-screen w-full overflow-hidden). Mobile: stacked (grid-cols-1 overflow-y-auto). Desktop: CSS Grid with lg:grid-cols-12.",
+    "left_panel_board": "Takes col-span-8. Flex center, minimal padding. The chessboard MUST be strictly responsive, locked to an aspect-square ratio. Maximum height should be 85vh to prevent vertical scrolling.",
+    "right_panel_sidebar": "Takes col-span-4. Cardless bento structure. Must have a strict left border (1px solid border-border) to separate it from the board. Houses Tabs (Move History vs. Chat).",
+    "chat_area": "Sticky bottom input layout. The message feed must be a ScrollArea that auto-scrolls. Own messages align right (bg-surface), opponent/spectator messages align left (bg-white border).",
+    "spacing": "Use generous internal padding for containers (p-6, p-8) but dense, tight spacing for data like move history (gap-2)."
+  },
+  "components": {
+    "buttons": "Avoid pill shapes. Use sharp edges (rounded-none) or subtle radius (rounded-sm). Active state must have high contrast (hover:bg-black/90 hover:text-white).",
+    "inputs": "Flat Shadcn inputs with strong focus rings (focus:ring-2 focus:ring-black focus:border-black). No soft shadows.",
+    "modals": "Dialog for Username/Room Prompt must use Glassmorphism (bg-white/70 backdrop-blur-xl border-white/40). Give it a premium 'Crystal' Apple variant look over the board.",
+    "tabs": "Override standard Shadcn tabs. Use clear underline indicators for active state rather than pill backgrounds. h-auto, not fixed height."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://static.prod-images.emergentagent.com/jobs/f46dc1fd-d282-4614-bbbb-68559a315bce/images/8da081bcd9e8f67e12b36b3f1592668fb7fe700d54821934ff1222188c1a1fe1.png",
+        "description": "High-contrast minimalist chess piece photograph. Use for landing page hero background or empty states before game start.",
+        "category": "hero_background"
+      },
+      {
+        "url": "https://static.prod-images.emergentagent.com/jobs/f46dc1fd-d282-4614-bbbb-68559a315bce/images/8172346ced51897d97a233e9928f1cccf06dce5001d3e9ab9d4223cf8c755513.png",
+        "description": "Abstract white geometric background. Use as a subtle backdrop for the username selection modal or full-screen loading state.",
+        "category": "modal_background"
+      }
+    ]
+  },
+  "motion": {
+    "microinteractions": "Snappy, precise transitions. transition-all duration-200 ease-in-out.",
+    "alerts": "When player is in 'Check', the board border or status indicator should pulse in Signal Red (#FF3B30).",
+    "pieces": "Drag and drop should feel weightless. Ensure smooth frame rates."
+  },
+  "testing": {
+    "attributes": "CRITICAL: All interactive elements MUST include `data-testid`. Examples: `data-testid='chat-input'`, `data-testid='send-message-button'`, `data-testid='reset-game-button'`."
+  },
+  "instructions_to_main_agent": [
+    "Follow the JSON configuration implicitly.",
+    "Initialize Tailwind config to replace default Sans font with 'IBM Plex Sans' and Serif/Heading with 'Cabinet Grotesk'.",
+    "Do NOT use 'Inter' for headings.",
+    "Implement real-time chessboard using standard robust libraries (e.g., react-chessboard) mapped to our color variables.",
+    "Ensure UI is fully responsive. Board goes on top, chat on bottom for mobile views.",
+    "Highlight game statuses (turn, check, mate) prominently above the board or in the sidebar header.",
+    "Do NOT wrap this JSON in markdown when reading. It is a strict JSON object."
+  ]
+}
