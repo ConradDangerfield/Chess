@@ -179,8 +179,8 @@ export default function ChessBoard({
           onSquareClick,
           canDragPiece,
           squareStyles,
-          darkSquareStyle: { backgroundColor: "#262626" },
-          lightSquareStyle: { backgroundColor: "#F8F9FA" },
+          darkSquareStyle: { backgroundColor: "#B58863" },
+          lightSquareStyle: { backgroundColor: "#F0D9B5" },
           boardStyle: {
             borderRadius: "2px",
             boxShadow: "0 2px 16px rgba(0,0,0,0.06)",

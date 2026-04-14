@@ -31,6 +31,8 @@
     /* Custom accent colors */
     --accent-blue: 228 100% 33%;
     --accent-red: 4 100% 59%;
+    --chess-light: #F0D9B5;
+    --chess-dark: #B58863;
 
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;

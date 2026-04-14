@@ -19,6 +19,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { RotateCcw, Copy, ArrowLeft, Wifi, WifiOff } from "lucide-react";
+import {
+  playMoveSound,
+  playCaptureSound,
+  playCheckSound,
+  playGameOverSound,
+  playNotifySound,
+} from "@/lib/sounds";
 
 export default function Game() {
   const { roomId } = useParams();
@@ -65,10 +72,32 @@ export default function Game() {
       setPlayerColor(data.color);
       setGameState(data.state);
       setChatMessages(data.chat || []);
+      playNotifySound();
     };
 
     const handleGameState = (state) => {
-      setGameState(state);
+      // Play game-over sound for draws/stalemate (no '#' in SAN for these)
+      setGameState((prev) => {
+        if (prev && !prev.isGameOver && state.isGameOver && !state.status.startsWith("checkmate")) {
+          playGameOverSound();
+        }
+        return state;
+      });
+    };
+
+    // Sound effects based on move type
+    const handleMoveMade = (data) => {
+      // san contains 'x' for captures, '+' for check, '#' for checkmate
+      const san = data.san || "";
+      if (san.includes("#")) {
+        playGameOverSound();
+      } else if (san.includes("+")) {
+        playCheckSound();
+      } else if (san.includes("x")) {
+        playCaptureSound();
+      } else {
+        playMoveSound();
+      }
     };
 
     const handleChatMessage = (msg) => {
@@ -81,12 +110,14 @@ export default function Game() {
 
     const handleGameReset = () => {
       toast.info("Game has been reset");
+      playNotifySound();
     };
 
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("room_joined", handleRoomJoined);
     socket.on("game_state", handleGameState);
+    socket.on("move_made", handleMoveMade);
     socket.on("chat_message", handleChatMessage);
     socket.on("move_error", handleMoveError);
     socket.on("game_reset", handleGameReset);
@@ -102,6 +133,7 @@ export default function Game() {
       socket.off("disconnect", handleDisconnect);
       socket.off("room_joined", handleRoomJoined);
       socket.off("game_state", handleGameState);
+      socket.off("move_made", handleMoveMade);
       socket.off("chat_message", handleChatMessage);
       socket.off("move_error", handleMoveError);
       socket.off("game_reset", handleGameReset);
