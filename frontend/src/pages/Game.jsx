@@ -18,14 +18,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { RotateCcw, Copy, ArrowLeft, Wifi, WifiOff } from "lucide-react";
+import { RotateCcw, Copy, ArrowLeft, Wifi, WifiOff, Volume2, VolumeX } from "lucide-react";
 import {
   playMoveSound,
   playCaptureSound,
   playCheckSound,
   playGameOverSound,
   playNotifySound,
+  isMuted,
+  getVolume,
+  setMuted,
+  setVolume,
+  toggleMute,
 } from "@/lib/sounds";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 
 export default function Game() {
   const { roomId } = useParams();
@@ -45,6 +52,10 @@ export default function Game() {
 
   // Track if we already joined
   const joinedRef = useRef(false);
+
+  // Sound control state (synced with sounds.js module)
+  const [muted, setMutedState] = useState(isMuted);
+  const [volume, setVolumeState] = useState(getVolume);
 
   // Determine turn
   const isMyTurn =
@@ -165,6 +176,21 @@ export default function Game() {
     toast.success("Room link copied!");
   };
 
+  const handleToggleMute = () => {
+    toggleMute();
+    setMutedState(isMuted());
+  };
+
+  const handleVolumeChange = (val) => {
+    const v = val[0];
+    setVolume(v);
+    setVolumeState(v);
+    if (v > 0 && muted) {
+      setMuted(false);
+      setMutedState(false);
+    }
+  };
+
   // ---- Username modal ----
   if (showUsernameModal || !username) {
     return (
@@ -229,6 +255,53 @@ export default function Game() {
               ) : (
                 <WifiOff className="w-3.5 h-3.5 text-red-500" />
               )}
+
+              {/* Volume control */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    data-testid="volume-toggle-button"
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-sm h-7 w-7"
+                  >
+                    {muted ? (
+                      <VolumeX className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5" />
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-52 p-3"
+                  side="bottom"
+                  align="start"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium">Sound</span>
+                      <button
+                        data-testid="mute-button"
+                        onClick={handleToggleMute}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      >
+                        {muted ? "Unmute" : "Mute"}
+                      </button>
+                    </div>
+                    <Slider
+                      data-testid="volume-slider"
+                      value={[muted ? 0 : volume]}
+                      onValueChange={handleVolumeChange}
+                      max={1}
+                      step={0.05}
+                      className="w-full"
+                    />
+                    <span className="text-[10px] text-muted-foreground">
+                      {muted ? "Muted" : `${Math.round(volume * 100)}%`}
+                    </span>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <GameStatus
