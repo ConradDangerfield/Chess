@@ -1,10 +1,13 @@
 # --- Stage 1: Build ---
 FROM node:18-alpine AS build
 
+# Disable corepack so packageManager field doesn't cause issues
+RUN corepack disable 2>/dev/null || true
+
 WORKDIR /app
 
 COPY package.json ./
-RUN yarn install
+RUN yarn install --network-timeout 600000
 
 COPY . .
 
