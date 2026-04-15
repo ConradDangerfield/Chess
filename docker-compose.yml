@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mongo:
     image: mongo:7
@@ -10,7 +8,9 @@ services:
       - "27017:27017"
 
   backend:
-    image: <BACKEND_IMAGE>:<TAG>
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       - mongo
@@ -22,7 +22,9 @@ services:
       - "8001:8001"
 
   frontend:
-    image: <FRONTEND_IMAGE>:<TAG>
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       - backend
