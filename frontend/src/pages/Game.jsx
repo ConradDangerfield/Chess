@@ -62,14 +62,24 @@ export default function Game({ discordUsername }) {
   useEffect(() => {
     if (!username) return;
 
+    const joinRoom = () => {
+      socket.emit("join_room", { roomId, username });
+    };
+
     const handleConnect = () => {
       setConnected(true);
-      socket.emit("join_room", { roomId, username });
+      joinRoom();
       joinedRef.current = true;
     };
 
     const handleDisconnect = () => {
       setConnected(false);
+    };
+
+    // Re-join room on reconnect (critical for Discord proxy which drops connections)
+    const handleReconnect = () => {
+      setConnected(true);
+      joinRoom();
     };
 
     const handleRoomJoined = (data) => {
@@ -111,6 +121,7 @@ export default function Game({ discordUsername }) {
 
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
+    socket.on("reconnect", handleReconnect);
     socket.on("room_joined", handleRoomJoined);
     socket.on("game_state", handleGameState);
     socket.on("move_made", handleMoveMade);
@@ -126,6 +137,7 @@ export default function Game({ discordUsername }) {
     return () => {
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
+      socket.off("reconnect", handleReconnect);
       socket.off("room_joined", handleRoomJoined);
       socket.off("game_state", handleGameState);
       socket.off("move_made", handleMoveMade);

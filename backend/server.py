@@ -38,8 +38,8 @@ sio = socketio.AsyncServer(
     cors_allowed_origins='*',
     logger=False,
     engineio_logger=False,
-    ping_timeout=60,
-    ping_interval=25,
+    ping_timeout=120,
+    ping_interval=60,
 )
 
 # Wrap FastAPI with Socket.IO — this becomes the ASGI app uvicorn serves
