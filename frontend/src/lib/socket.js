@@ -11,7 +11,8 @@ const socket = io(BASE_URL, {
   reconnection: true,
   reconnectionDelay: 1000,
   reconnectionAttempts: 20,
-  transports: ["polling", "websocket"],
+  // Discord's proxy doesn't support WebSocket upgrade — use polling only inside Discord
+  transports: isDiscordEmbed ? ["polling"] : ["polling", "websocket"],
 });
 
 export { BASE_URL };
