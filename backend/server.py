@@ -36,10 +36,11 @@ fastapi_app.add_middleware(
 sio = socketio.AsyncServer(
     async_mode='asgi',
     cors_allowed_origins='*',
-    logger=False,
-    engineio_logger=False,
+    logger=True,
+    engineio_logger=True,
     ping_timeout=120,
     ping_interval=60,
+    cookie='io_session',
 )
 
 # Wrap FastAPI with Socket.IO — this becomes the ASGI app uvicorn serves
