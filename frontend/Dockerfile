@@ -4,7 +4,9 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install --legacy-peer-deps
+
+# Force clean install every time
+RUN npm cache clean --force && npm install --legacy-peer-deps
 
 COPY . .
 
@@ -12,9 +14,9 @@ ARG REACT_APP_BACKEND_URL=""
 ARG REACT_APP_DISCORD_CLIENT_ID="1494226832709386351"
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 ENV REACT_APP_DISCORD_CLIENT_ID=$REACT_APP_DISCORD_CLIENT_ID
-ENV NODE_OPTIONS=--openssl-legacy-provider
 
-RUN npx craco build || npx react-scripts build
+# Build the React app
+RUN npx craco build
 
 # --- Stage 2: Serve with nginx ---
 FROM nginx:alpine

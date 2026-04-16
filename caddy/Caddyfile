@@ -1,4 +1,10 @@
 chess.conraddangerfield.com {
+	# Discord embedding headers
+	header {
+		Content-Security-Policy "frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
+		-X-Frame-Options
+	}
+
 	# Discord Activity SDK proxy mapping
 	handle /.proxy/api/* {
 		uri strip_prefix /.proxy
