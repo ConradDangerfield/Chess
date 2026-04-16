@@ -17,9 +17,11 @@ services:
     environment:
       MONGO_URL: "mongodb://mongo:27017"
       DB_NAME: "chess_app"
-      CORS_ORIGINS: "*"
-    ports:
-      - "8001:8001"
+      CORS_ORIGINS: "https://chess.conraddangerfield.com"
+      DISCORD_CLIENT_ID: "1494226832709386351"
+      DISCORD_CLIENT_SECRET: "gxUW-Hb5u_RR1FL0JqnK-hp0aMpKFac3"
+    expose:
+      - "8001"
 
   frontend:
     build:
@@ -28,8 +30,25 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    expose:
+      - "80"
+
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
     ports:
-      - "3000:80"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   mongo_data:
+  caddy_data:
+  caddy_config:
