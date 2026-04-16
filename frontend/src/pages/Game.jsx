@@ -33,12 +33,13 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 
-export default function Game() {
+export default function Game({ discordUsername }) {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
+  // If launched from Discord, use the Discord display name directly
   const [username, setUsername] = useState(
-    () => sessionStorage.getItem(`chess_user_${roomId}`) || ""
+    () => discordUsername || sessionStorage.getItem(`chess_user_${roomId}`) || ""
   );
   const [showUsernameModal, setShowUsernameModal] = useState(!username);
 

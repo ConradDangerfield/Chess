@@ -1,4 +1,11 @@
 chess.conraddangerfield.com {
+	# Discord Activity SDK proxy mapping
+	handle /.proxy/api/* {
+		uri strip_prefix /.proxy
+		reverse_proxy backend:8001
+	}
+
+	# API + Socket.IO → backend
 	handle /api/* {
 		reverse_proxy backend:8001
 	}
@@ -7,6 +14,7 @@ chess.conraddangerfield.com {
 		reverse_proxy backend:8001
 	}
 
+	# Everything else → frontend
 	handle {
 		reverse_proxy frontend:80
 	}
