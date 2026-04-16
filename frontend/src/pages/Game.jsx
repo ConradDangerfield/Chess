@@ -3,13 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import socket from "@/lib/socket";
 import ChessBoard from "@/components/ChessBoard";
-import ChatPanel from "@/components/ChatPanel";
 import MoveHistory from "@/components/MoveHistory";
 import GameStatus from "@/components/GameStatus";
 import PlayerInfo from "@/components/PlayerInfo";
 import UsernameModal from "@/components/UsernameModal";
 import GameOverModal from "@/components/GameOverModal";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -39,26 +37,20 @@ export default function Game() {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
-  // Username from sessionStorage for reconnect
   const [username, setUsername] = useState(
     () => sessionStorage.getItem(`chess_user_${roomId}`) || ""
   );
   const [showUsernameModal, setShowUsernameModal] = useState(!username);
 
-  // Game state from server
   const [gameState, setGameState] = useState(null);
   const [playerColor, setPlayerColor] = useState(null);
-  const [chatMessages, setChatMessages] = useState([]);
   const [connected, setConnected] = useState(false);
 
-  // Track if we already joined
   const joinedRef = useRef(false);
 
-  // Sound control state (synced with sounds.js module)
   const [muted, setMutedState] = useState(isMuted);
   const [volume, setVolumeState] = useState(getVolume);
 
-  // Determine turn
   const isMyTurn =
     gameState &&
     playerColor !== "spectator" &&
@@ -83,12 +75,10 @@ export default function Game() {
     const handleRoomJoined = (data) => {
       setPlayerColor(data.color);
       setGameState(data.state);
-      setChatMessages(data.chat || []);
       playNotifySound();
     };
 
     const handleGameState = (state) => {
-      // Play game-over sound for draws/stalemate (no '#' in SAN for these)
       setGameState((prev) => {
         if (prev && !prev.isGameOver && state.isGameOver && !state.status.startsWith("checkmate")) {
           playGameOverSound();
@@ -97,9 +87,7 @@ export default function Game() {
       });
     };
 
-    // Sound effects based on move type
     const handleMoveMade = (data) => {
-      // san contains 'x' for captures, '+' for check, '#' for checkmate
       const san = data.san || "";
       if (san.includes("#")) {
         playGameOverSound();
@@ -110,10 +98,6 @@ export default function Game() {
       } else {
         playMoveSound();
       }
-    };
-
-    const handleChatMessage = (msg) => {
-      setChatMessages((prev) => [...prev, msg]);
     };
 
     const handleMoveError = (data) => {
@@ -130,7 +114,6 @@ export default function Game() {
     socket.on("room_joined", handleRoomJoined);
     socket.on("game_state", handleGameState);
     socket.on("move_made", handleMoveMade);
-    socket.on("chat_message", handleChatMessage);
     socket.on("move_error", handleMoveError);
     socket.on("game_reset", handleGameReset);
 
@@ -146,7 +129,6 @@ export default function Game() {
       socket.off("room_joined", handleRoomJoined);
       socket.off("game_state", handleGameState);
       socket.off("move_made", handleMoveMade);
-      socket.off("chat_message", handleChatMessage);
       socket.off("move_error", handleMoveError);
       socket.off("game_reset", handleGameReset);
       socket.disconnect();
@@ -156,10 +138,6 @@ export default function Game() {
   // ---- Handlers ----
   const handleMove = useCallback((from, to, promotion) => {
     socket.emit("make_move", { from, to, promotion });
-  }, []);
-
-  const handleChat = useCallback((message) => {
-    socket.emit("send_chat", { message });
   }, []);
 
   const handleReset = useCallback(() => {
@@ -175,7 +153,6 @@ export default function Game() {
   const copyRoomLink = () => {
     const url = window.location.href;
     try {
-      // Fallback: use a temporary textarea for environments where Clipboard API is blocked
       const textarea = document.createElement("textarea");
       textarea.value = url;
       textarea.style.position = "fixed";
@@ -186,7 +163,6 @@ export default function Game() {
       document.body.removeChild(textarea);
       toast.success("Room link copied!");
     } catch {
-      // If even execCommand fails, show the link for manual copy
       toast.info(`Room: ${roomId}`);
     }
   };
@@ -344,7 +320,6 @@ export default function Game() {
                 playerColor={playerColor}
               />
 
-              {/* Game-over overlay positioned on top of the board */}
               {gameState.isGameOver && (
                 <GameOverModal
                   gameState={gameState}
@@ -363,61 +338,36 @@ export default function Game() {
           </div>
         </div>
 
-        {/* ===== Sidebar ===== */}
+        {/* ===== Sidebar — Move History only ===== */}
         <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-border flex flex-col min-h-0 max-h-[50vh] lg:max-h-full">
-          <Tabs defaultValue="chat" className="flex flex-col flex-1 min-h-0">
-            <div className="px-4 pt-4 pb-0 flex items-center justify-between">
-              <TabsList className="bg-transparent p-0 h-auto gap-4">
-                <TabsTrigger
-                  value="chat"
-                  data-testid="chat-tab"
-                  className="rounded-none bg-transparent px-0 pb-2 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-[#0A0A0A] text-muted-foreground border-b-2 border-transparent transition-all duration-200"
-                >
-                  Chat
-                </TabsTrigger>
-                <TabsTrigger
-                  value="moves"
-                  data-testid="moves-tab"
-                  className="rounded-none bg-transparent px-0 pb-2 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-[#0A0A0A] text-muted-foreground border-b-2 border-transparent transition-all duration-200"
-                >
-                  Moves
-                </TabsTrigger>
-              </TabsList>
+          <div className="px-4 pt-4 pb-0 flex items-center justify-between">
+            <span className="text-sm font-medium" data-testid="moves-heading">Moves</span>
 
-              {playerColor !== "spectator" && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      data-testid="reset-game-button"
-                      variant="ghost"
-                      size="sm"
-                      className="rounded-sm text-muted-foreground hover:text-foreground"
-                      onClick={handleReset}
-                      disabled={gameState.moves.length === 0}
-                    >
-                      <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                      Reset
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Reset the game</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
+            {playerColor !== "spectator" && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    data-testid="reset-game-button"
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-sm text-muted-foreground hover:text-foreground"
+                    onClick={handleReset}
+                    disabled={gameState.moves.length === 0}
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                    Reset
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Reset the game</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
 
-            <Separator className="mt-0" />
+          <Separator className="mt-2" />
 
-            <TabsContent value="chat" className="flex-1 min-h-0 mt-0">
-              <ChatPanel
-                messages={chatMessages}
-                onSend={handleChat}
-                username={username}
-              />
-            </TabsContent>
-
-            <TabsContent value="moves" className="flex-1 min-h-0 mt-0 overflow-auto">
-              <MoveHistory moves={gameState.moves} />
-            </TabsContent>
-          </Tabs>
+          <div className="flex-1 min-h-0 overflow-auto">
+            <MoveHistory moves={gameState.moves} />
+          </div>
         </div>
       </div>
     </TooltipProvider>
