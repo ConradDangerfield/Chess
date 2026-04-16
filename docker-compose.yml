@@ -32,7 +32,9 @@ services:
       - "80"
 
   caddy:
-    image: caddy:2
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       - frontend
@@ -41,7 +43,6 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
 

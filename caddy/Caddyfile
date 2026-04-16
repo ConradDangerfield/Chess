@@ -1,15 +1,12 @@
 chess.conraddangerfield.com {
-	# API + Socket.IO → backend
 	handle /api/* {
 		reverse_proxy backend:8001
 	}
 
-	# Socket.IO needs WebSocket upgrade
 	handle /api/socket.io/* {
 		reverse_proxy backend:8001
 	}
 
-	# Everything else → frontend
 	handle {
 		reverse_proxy frontend:80
 	}
