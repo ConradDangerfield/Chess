@@ -1,6 +1,4 @@
 from fastapi import FastAPI, APIRouter
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,7 +8,6 @@ from pathlib import Path
 import uuid
 import chess
 import socketio
-import httpx
 from datetime import datetime, timezone
 
 ROOT_DIR = Path(__file__).parent
@@ -146,38 +143,6 @@ async def get_room(room_id: str):
     if room_id in games:
         return {"exists": True, "state": games[room_id].get_state()}
     return {"exists": False}
-
-
-# --------------- Discord OAuth token exchange ---------------
-class TokenRequest(BaseModel):
-    code: str
-
-@api_router.post("/token")
-async def exchange_token(req: TokenRequest):
-    """Exchange a Discord OAuth2 code for an access_token (used by Embedded App SDK)."""
-    client_id = os.environ.get("DISCORD_CLIENT_ID", "")
-    client_secret = os.environ.get("DISCORD_CLIENT_SECRET", "")
-
-    if not client_id or not client_secret:
-        return JSONResponse({"error": "Discord credentials not configured"}, status_code=500)
-
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            "https://discord.com/api/oauth2/token",
-            data={
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "grant_type": "authorization_code",
-                "code": req.code,
-            },
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
-
-    if resp.status_code != 200:
-        logger.error(f"Discord token exchange failed: {resp.text}")
-        return JSONResponse({"error": "Token exchange failed"}, status_code=400)
-
-    return resp.json()
 
 
 fastapi_app.include_router(api_router)

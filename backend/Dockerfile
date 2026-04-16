@@ -7,8 +7,6 @@ RUN pip install --no-cache-dir -r requirements.docker.txt
 
 COPY . .
 
-# Write a minimal .env so load_dotenv doesn't fail — 
-# actual values come from docker-compose environment vars
 RUN echo "" > .env
 
 EXPOSE 8001
