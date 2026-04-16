@@ -210,11 +210,11 @@ export default function Game() {
   return (
     <TooltipProvider>
       <div
-        className="h-screen w-full flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-white"
+        className="h-screen w-full flex flex-col lg:grid lg:grid-cols-[1fr_240px] overflow-hidden bg-white"
         data-testid="game-page"
       >
         {/* ===== Board Panel ===== */}
-        <div className="lg:col-span-8 flex flex-col items-center justify-center p-4 lg:p-6 min-h-0">
+        <div className="flex flex-col items-center justify-center p-4 lg:p-6 min-h-0">
           {/* Top bar */}
           <div className="w-full flex items-center justify-between mb-3" style={{ maxWidth: "min(85vh, 100%)" }}>
             <div className="flex items-center gap-2">
@@ -339,7 +339,7 @@ export default function Game() {
         </div>
 
         {/* ===== Sidebar — Move History only ===== */}
-        <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-border flex flex-col min-h-0 max-h-[50vh] lg:max-h-full">
+        <div className="border-t lg:border-t-0 lg:border-l border-border flex flex-col min-h-0 max-h-[50vh] lg:max-h-full">
           <div className="px-4 pt-4 pb-0 flex items-center justify-between">
             <span className="text-sm font-medium" data-testid="moves-heading">Moves</span>
 
