@@ -17,11 +17,23 @@ services:
     environment:
       MONGO_URL: "mongodb://mongo:27017"
       DB_NAME: "chess_app"
-      CORS_ORIGINS: "https://chess.conraddangerfield.com"
-      DISCORD_CLIENT_ID: "1494226832709386351"
-      DISCORD_CLIENT_SECRET: "gxUW-Hb5u_RR1FL0JqnK-hp0aMpKFac3"
+      CORS_ORIGINS: "https://chess.conraddangerfield.com,https://discord.com,https://*.discord.com,https://*.discordsays.com"
+      DISCORD_CLIENT_ID: "${DISCORD_CLIENT_ID}"
+      DISCORD_CLIENT_SECRET: "${DISCORD_CLIENT_SECRET}"
     expose:
       - "8001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`chess.conraddangerfield.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8001"
+      - "traefik.http.middlewares.backend-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
+      - "traefik.http.middlewares.backend-headers.headers.customresponseheaders.X-Frame-Options="
+      - "traefik.http.routers.backend.middlewares=backend-headers"
+    networks:
+      - default
+      - traefik
 
   frontend:
     build:
@@ -32,23 +44,46 @@ services:
       - backend
     expose:
       - "80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`chess.conraddangerfield.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.frontend-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
+      - "traefik.http.middlewares.frontend-headers.headers.customresponseheaders.X-Frame-Options="
+      - "traefik.http.routers.frontend.middlewares=frontend-headers"
+    networks:
+      - default
+      - traefik
 
-  caddy:
-    build:
-      context: ./caddy
-      dockerfile: Dockerfile
+  traefik:
+    image: traefik:v3.0
     restart: unless-stopped
-    depends_on:
-      - frontend
-      - backend
+    command:
+      - "--api.dashboard=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=chesschat_traefik"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_certs:/letsencrypt
+    networks:
+      - traefik
 
 volumes:
   mongo_data:
-  caddy_data:
-  caddy_config:
+  traefik_certs:
+
+networks:
+  traefik:
+    name: chesschat_traefik

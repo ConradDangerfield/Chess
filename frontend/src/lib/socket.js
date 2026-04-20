@@ -8,10 +8,9 @@ const BASE_URL = isDiscordEmbed
 let socket;
 
 if (isDiscordEmbed) {
-  // Inside Discord: connect to same origin, use /.proxy in the path
-  // This avoids socket.io treating /.proxy as a namespace
-  socket = io({
-    path: "/.proxy/api/socket.io",
+  // Inside Discord: connect to /proxy namespace via the Discord proxy path
+  socket = io("/.proxy/proxy", {
+    path: "/api/socket.io",
     autoConnect: false,
     reconnection: true,
     reconnectionDelay: 1000,
@@ -20,6 +19,7 @@ if (isDiscordEmbed) {
     forceNew: true,
   });
 } else {
+  // Normal browser: connect to default '/' namespace
   socket = io(BASE_URL, {
     path: "/api/socket.io",
     autoConnect: false,
