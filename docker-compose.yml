@@ -27,10 +27,11 @@ services:
       - "traefik.http.routers.backend.rule=Host(`chess.conraddangerfield.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend.priority=10"
       - "traefik.http.services.backend.loadbalancer.server.port=8001"
-      - "traefik.http.middlewares.backend-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
-      - "traefik.http.middlewares.backend-headers.headers.customresponseheaders.X-Frame-Options="
-      - "traefik.http.routers.backend.middlewares=backend-headers"
+      - "traefik.http.middlewares.discord-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
+      - "traefik.http.middlewares.discord-headers.headers.customresponseheaders.X-Frame-Options="
+      - "traefik.http.routers.backend.middlewares=discord-headers"
     networks:
       - default
       - traefik
@@ -61,8 +62,9 @@ services:
   traefik:
     image: traefik:v3.0
     restart: unless-stopped
+    environment:
+      DOCKER_API_VERSION: "1.44"
     command:
-      - "--api.dashboard=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=chesschat_traefik"
