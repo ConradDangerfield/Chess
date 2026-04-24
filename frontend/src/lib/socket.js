@@ -1,15 +1,17 @@
 import { io } from "socket.io-client";
 import { isDiscordEmbed } from "@/lib/discord";
 
-const BASE_URL = isDiscordEmbed
-  ? "/.proxy"
-  : (process.env.REACT_APP_BACKEND_URL || "");
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 
 let socket;
 
 if (isDiscordEmbed) {
-  // Inside Discord: connect to /proxy namespace via the Discord proxy path
-  socket = io("/.proxy/proxy", {
+  // Inside Discord: connect to same origin, /proxy namespace
+  // Discord's proxy maps /.proxy/* -> chess.conraddangerfield.com/*
+  // So path "/api/socket.io" goes through /.proxy/api/socket.io
+  // -> chess.conraddangerfield.com/api/socket.io
+  // Namespace must be "/proxy" to match server registration
+  socket = io("/proxy", {
     path: "/api/socket.io",
     autoConnect: false,
     reconnection: true,
@@ -19,8 +21,7 @@ if (isDiscordEmbed) {
     forceNew: true,
   });
 } else {
-  // Normal browser: connect to default '/' namespace
-  socket = io(BASE_URL, {
+  socket = io(BACKEND_URL, {
     path: "/api/socket.io",
     autoConnect: false,
     reconnection: true,
@@ -30,5 +31,5 @@ if (isDiscordEmbed) {
   });
 }
 
-export { BASE_URL };
+export const BASE_URL = isDiscordEmbed ? "" : BACKEND_URL;
 export default socket;
