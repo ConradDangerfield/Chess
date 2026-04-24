@@ -24,17 +24,14 @@ services:
       - "8001"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`chess.conraddangerfield.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.backend.priority=10"
-      - "traefik.http.services.backend.loadbalancer.server.port=8001"
-      - "traefik.http.middlewares.discord-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
-      - "traefik.http.middlewares.discord-headers.headers.customresponseheaders.X-Frame-Options="
-      - "traefik.http.routers.backend.middlewares=discord-headers"
-    networks:
-      - default
-      - traefik
+      - "traefik.http.routers.chess-backend.rule=Host(`chess.conraddangerfield.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.chess-backend.entrypoints=websecure"
+      - "traefik.http.routers.chess-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.chess-backend.priority=10"
+      - "traefik.http.services.chess-backend.loadbalancer.server.port=8001"
+      - "traefik.http.middlewares.chess-discord.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
+      - "traefik.http.middlewares.chess-discord.headers.customresponseheaders.X-Frame-Options="
+      - "traefik.http.routers.chess-backend.middlewares=chess-discord"
 
   frontend:
     build:
@@ -47,45 +44,14 @@ services:
       - "80"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`chess.conraddangerfield.com`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frontend.priority=1"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
-      - "traefik.http.middlewares.frontend-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
-      - "traefik.http.middlewares.frontend-headers.headers.customresponseheaders.X-Frame-Options="
-      - "traefik.http.routers.frontend.middlewares=frontend-headers"
-    networks:
-      - default
-      - traefik
-
-  traefik:
-    image: traefik:v3.0
-    restart: unless-stopped
-    environment:
-      DOCKER_API_VERSION: "1.44"
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=chesschat_traefik"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik_certs:/letsencrypt
-    networks:
-      - traefik
+      - "traefik.http.routers.chess-frontend.rule=Host(`chess.conraddangerfield.com`)"
+      - "traefik.http.routers.chess-frontend.entrypoints=websecure"
+      - "traefik.http.routers.chess-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.chess-frontend.priority=1"
+      - "traefik.http.services.chess-frontend.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.chess-frontend-discord.headers.customresponseheaders.Content-Security-Policy=frame-ancestors https://discord.com https://*.discord.com https://*.discordsays.com"
+      - "traefik.http.middlewares.chess-frontend-discord.headers.customresponseheaders.X-Frame-Options="
+      - "traefik.http.routers.chess-frontend.middlewares=chess-frontend-discord"
 
 volumes:
   mongo_data:
-  traefik_certs:
-
-networks:
-  traefik:
-    name: chesschat_traefik
