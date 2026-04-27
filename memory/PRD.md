@@ -77,6 +77,15 @@ Build a real-time multiplayer chess web app with integrated chat system.
 - New component: `GameOverModal.jsx` — overlays the chessboard on game end
 - Detects: checkmate, stalemate, draw (insufficient material, fifty-move, threefold repetition)
 - Displays result headline + CTA text with 400ms delayed fade-in
-- CTA links to https://app.emergent.sh/register?ref=timo990308 (target=_blank)
 - "Play Again" button (players only, not spectators) emits reset_game via Socket.IO
 - Dimmed backdrop with backdrop-blur, smooth scale-in animation
+
+### GameOverModal e-commerce CTA refinement (Feb 2026)
+- Removed product name to keep the vibe clean
+- T-shirt image enlarged to `w-36` with `hover:scale-105` and pointer cursor
+- Added "Tap to view" caption under the image (`text-[10px]`)
+- Dynamic CTA text via `getCtaText()`:
+  - Win or Spectator → "Celebrate like a champion"
+  - Loss/Draw → "That hurt. Recover in style"
+- Product link: https://shop.conraddangerfield.com/products/the-king-s-way-tee
+- Emergent credit demoted to fine print at the bottom
