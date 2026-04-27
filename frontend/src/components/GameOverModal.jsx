@@ -5,7 +5,6 @@ import { RotateCcw } from "lucide-react";
 const PRODUCT_URL =
   "https://shop.conraddangerfield.com/products/the-king-s-way-tee?variant=50115434512604";
 const PRODUCT_IMAGE = "/kings-way-tee.png";
-const EMERGENT_URL = "https://app.emergent.sh/register?ref=timo990308";
 
 function getResultText(status) {
   if (status.startsWith("checkmate")) {
@@ -114,20 +113,6 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
             Play Again
           </Button>
         )}
-
-        {/* Emergent credit — demoted */}
-        <p className="mt-4 text-[9px] text-muted-foreground/60">
-          Built in a few hours with{" "}
-          <a
-            href={EMERGENT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline"
-            data-testid="emergent-link"
-          >
-            Emergent
-          </a>
-        </p>
       </div>
     </div>
   );
