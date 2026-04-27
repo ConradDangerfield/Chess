@@ -1,46 +1,33 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, ExternalLink } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
-/**
- * Formats the server status string into a human-readable result.
- */
-function getResultText(status, playerColor) {
+const PRODUCT_URL =
+  "https://shop.conraddangerfield.com/products/the-king-s-way-tee?variant=50115434512604";
+const PRODUCT_IMAGE = "/kings-way-tee.png";
+const EMERGENT_URL = "https://app.emergent.sh/register?ref=timo990308";
+
+function getResultText(status) {
   if (status.startsWith("checkmate")) {
     const winner = status.split("_")[1];
-    const label = winner.charAt(0).toUpperCase() + winner.slice(1);
-    return { headline: "Checkmate", detail: `${label} wins` };
+    return `${winner.charAt(0).toUpperCase() + winner.slice(1)} wins`;
   }
-  if (status === "stalemate") {
-    return { headline: "Stalemate", detail: "The game is a draw" };
-  }
-  if (status === "draw_insufficient") {
-    return { headline: "Draw", detail: "Insufficient material" };
-  }
-  if (status === "draw_fifty") {
-    return { headline: "Draw", detail: "Fifty-move rule" };
-  }
-  if (status === "draw_repetition") {
-    return { headline: "Draw", detail: "Threefold repetition" };
-  }
-  return { headline: "Game Over", detail: "" };
+  if (status === "stalemate") return "Stalemate";
+  if (status === "draw_insufficient") return "Draw — insufficient material";
+  if (status === "draw_fifty") return "Draw — fifty-move rule";
+  if (status === "draw_repetition") return "Draw — threefold repetition";
+  return "Game Over";
 }
 
-/**
- * Full-board overlay shown when a game ends.
- * Displays result, CTA (delayed 400ms), and Play Again button.
- */
 export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
   const [showCta, setShowCta] = useState(false);
 
-  // Delay CTA text by 400ms after mount for readability
   useEffect(() => {
     const timer = setTimeout(() => setShowCta(true), 400);
     return () => clearTimeout(timer);
   }, []);
 
-  const { headline, detail } = getResultText(gameState.status, playerColor);
-
+  const result = getResultText(gameState.status);
   const isWinner =
     gameState.status.startsWith("checkmate") &&
     gameState.status.split("_")[1] === playerColor;
@@ -50,28 +37,22 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
       data-testid="game-over-modal"
       className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in-0 duration-300"
     >
-      {/* Dimmed backdrop */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] rounded-sm" />
 
-      {/* Content card */}
       <div
-        className="relative z-10 w-[85%] max-w-sm bg-white/95 backdrop-blur-sm border border-border rounded-sm shadow-2xl px-6 py-7 text-center animate-in zoom-in-95 duration-300"
+        className="relative z-10 w-[88%] max-w-xs bg-white/95 backdrop-blur-sm border border-border rounded-sm shadow-2xl px-5 py-6 text-center animate-in zoom-in-95 duration-300"
         data-testid="game-over-card"
       >
-        {/* Result */}
+        {/* 1. Game result */}
         <h2
-          className="font-heading text-2xl sm:text-3xl font-bold tracking-tighter text-[#0A0A0A]"
+          className="font-heading text-xl sm:text-2xl font-bold tracking-tighter text-[#0A0A0A]"
           data-testid="game-over-headline"
         >
-          {headline}
+          {result}
         </h2>
-        {detail && (
-          <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
-        )}
 
-        {/* Win / loss accent line */}
         <div
-          className={`mx-auto mt-4 h-0.5 w-12 rounded-full ${
+          className={`mx-auto mt-3 h-0.5 w-10 rounded-full ${
             isWinner
               ? "bg-green-500"
               : gameState.status.startsWith("checkmate")
@@ -80,30 +61,37 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
           }`}
         />
 
-        {/* CTA — delayed appearance */}
+        {/* 2–4. Product CTA — delayed */}
         <div
-          className={`mt-5 transition-all duration-500 ${
-            showCta
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-2"
+          className={`mt-4 transition-all duration-500 ${
+            showCta ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           }`}
           data-testid="game-over-cta"
         >
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            This app was vibe-coded in a few hours.
+          {/* 2. Contextual text */}
+          <p className="text-xs text-muted-foreground mb-3">
+            Celebrate like a champion
           </p>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            Want to build your own?{" "}
-            <a
-              href="https://app.emergent.sh/register?ref=timo990308"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 font-medium text-[#002FA7] hover:underline"
-              data-testid="cta-link"
-            >
-              Start here
-              <ExternalLink className="w-2.5 h-2.5" />
-            </a>
+
+          {/* 3. Product image (clickable) */}
+          <a
+            href={PRODUCT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block rounded-sm overflow-hidden hover:opacity-90 transition-opacity duration-200"
+            data-testid="product-link"
+          >
+            <img
+              src={PRODUCT_IMAGE}
+              alt="The King's Way Tee"
+              className="w-28 h-auto mx-auto"
+              loading="lazy"
+            />
+          </a>
+
+          {/* 4. Caption */}
+          <p className="mt-2 text-[10px] text-muted-foreground">
+            The King's Way Tee
           </p>
         </div>
 
@@ -112,12 +100,26 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
           <Button
             data-testid="play-again-button"
             onClick={onPlayAgain}
-            className="mt-5 w-full h-10 rounded-sm bg-[#0A0A0A] hover:bg-[#0A0A0A]/90 text-white font-medium transition-all duration-200"
+            className="mt-4 w-full h-9 rounded-sm bg-[#0A0A0A] hover:bg-[#0A0A0A]/90 text-white text-sm font-medium transition-all duration-200"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-2" />
             Play Again
           </Button>
         )}
+
+        {/* 5. Emergent credit — demoted */}
+        <p className="mt-4 text-[9px] text-muted-foreground/60">
+          Built in a few hours with{" "}
+          <a
+            href={EMERGENT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+            data-testid="emergent-link"
+          >
+            Emergent
+          </a>
+        </p>
       </div>
     </div>
   );
