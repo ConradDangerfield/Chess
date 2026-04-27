@@ -19,6 +19,14 @@ function getResultText(status) {
   return "Game Over";
 }
 
+function getCtaText(status, playerColor) {
+  if (!status.startsWith("checkmate")) return "Recover in style";
+  const winner = status.split("_")[1];
+  if (winner === playerColor) return "Celebrate like a champion";
+  if (playerColor === "spectator") return "Celebrate like a champion";
+  return "That hurt. Recover in style";
+}
+
 export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
   const [showCta, setShowCta] = useState(false);
 
@@ -28,6 +36,7 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
   }, []);
 
   const result = getResultText(gameState.status);
+  const ctaText = getCtaText(gameState.status, playerColor);
   const isWinner =
     gameState.status.startsWith("checkmate") &&
     gameState.status.split("_")[1] === playerColor;
@@ -43,7 +52,7 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
         className="relative z-10 w-[88%] max-w-xs bg-white/95 backdrop-blur-sm border border-border rounded-sm shadow-2xl px-5 py-6 text-center animate-in zoom-in-95 duration-300"
         data-testid="game-over-card"
       >
-        {/* 1. Game result */}
+        {/* Result */}
         <h2
           className="font-heading text-xl sm:text-2xl font-bold tracking-tighter text-[#0A0A0A]"
           data-testid="game-over-headline"
@@ -61,37 +70,36 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
           }`}
         />
 
-        {/* 2–4. Product CTA — delayed */}
+        {/* Product CTA — delayed */}
         <div
           className={`mt-4 transition-all duration-500 ${
             showCta ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           }`}
           data-testid="game-over-cta"
         >
-          {/* 2. Contextual text */}
           <p className="text-xs text-muted-foreground mb-3">
-            Celebrate like a champion
+            {ctaText}
           </p>
 
-          {/* 3. Product image (clickable) */}
+          {/* Product image — bigger, hover scale, pointer cursor */}
           <a
             href={PRODUCT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block rounded-sm overflow-hidden hover:opacity-90 transition-opacity duration-200"
+            className="inline-block cursor-pointer"
             data-testid="product-link"
           >
             <img
               src={PRODUCT_IMAGE}
-              alt="The King's Way Tee"
-              className="w-28 h-auto mx-auto"
+              alt=""
+              className="w-36 h-auto mx-auto rounded-sm transition-transform duration-200 hover:scale-105"
               loading="lazy"
             />
           </a>
 
-          {/* 4. Caption */}
-          <p className="mt-2 text-[10px] text-muted-foreground">
-            The King's Way Tee
+          {/* Click hint */}
+          <p className="mt-1.5 text-[10px] text-muted-foreground/70">
+            Tap to view
           </p>
         </div>
 
@@ -107,7 +115,7 @@ export default function GameOverModal({ gameState, playerColor, onPlayAgain }) {
           </Button>
         )}
 
-        {/* 5. Emergent credit — demoted */}
+        {/* Emergent credit — demoted */}
         <p className="mt-4 text-[9px] text-muted-foreground/60">
           Built in a few hours with{" "}
           <a
