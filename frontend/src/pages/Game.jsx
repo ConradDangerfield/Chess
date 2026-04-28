@@ -9,7 +9,6 @@ import PlayerInfo from "@/components/PlayerInfo";
 import UsernameModal from "@/components/UsernameModal";
 import GameOverModal from "@/components/GameOverModal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -244,15 +243,25 @@ export default function Game({ discordUsername }) {
                 </TooltipTrigger>
                 <TooltipContent>Back to home</TooltipContent>
               </Tooltip>
-              <Badge
-                variant="outline"
-                className="font-mono text-xs rounded-sm cursor-pointer hover:bg-[#F4F4F5] transition-colors duration-200"
-                onClick={copyRoomLink}
-                data-testid="room-id-badge"
-              >
-                {roomId}
-                <Copy className="w-3 h-3 ml-1.5" />
-              </Badge>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={copyRoomLink}
+                    data-testid="room-id-badge"
+                    className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border border-[#0A0A0A]/15 bg-[#F4F4F5] hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A] transition-colors duration-200"
+                  >
+                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-white/70">
+                      Room
+                    </span>
+                    <span className="font-mono text-base font-semibold tracking-wider">
+                      {roomId}
+                    </span>
+                    <Copy className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Click to copy room link</TooltipContent>
+              </Tooltip>
               {connected ? (
                 <Wifi className="w-3.5 h-3.5 text-green-600" />
               ) : (

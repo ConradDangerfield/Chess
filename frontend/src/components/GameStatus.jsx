@@ -38,16 +38,33 @@ export default function GameStatus({ gameState, playerColor }) {
     );
   }
 
-  // Check
+  // Check — show turn AND check together so it's clear whose turn it is
   if (isCheck) {
+    const myTurn = turn === playerColor;
+    const turnLabel =
+      playerColor === "spectator"
+        ? `${turn.charAt(0).toUpperCase() + turn.slice(1)}'s turn`
+        : myTurn
+        ? "Your turn"
+        : "Opponent's turn";
     return (
-      <Badge
-        data-testid="game-status"
-        variant="outline"
-        className="rounded-sm font-medium text-xs border-[#FF3B30] text-[#FF3B30] bg-red-50"
-      >
-        Check!
-      </Badge>
+      <div className="flex items-center gap-1.5" data-testid="game-status">
+        <Badge
+          variant={myTurn && playerColor !== "spectator" ? "default" : "secondary"}
+          className={`rounded-sm font-medium text-xs transition-all duration-200 ${
+            myTurn && playerColor !== "spectator" ? "bg-[#0A0A0A] text-white" : ""
+          }`}
+        >
+          {turnLabel}
+        </Badge>
+        <Badge
+          data-testid="check-badge"
+          variant="outline"
+          className="rounded-sm font-semibold text-xs border-[#FF3B30] text-[#FF3B30] bg-red-50 animate-pulse"
+        >
+          Check!
+        </Badge>
+      </div>
     );
   }
 

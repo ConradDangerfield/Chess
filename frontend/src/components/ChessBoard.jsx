@@ -2,51 +2,6 @@ import { useState, useMemo, useCallback } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 
-// Maps piece symbols to Unicode chess pieces
-const PIECE_UNICODE = {
-  p: "\u265F", n: "\u265E", b: "\u265D", r: "\u265C", q: "\u265B", k: "\u265A",
-  P: "\u2659", N: "\u2658", B: "\u2657", R: "\u2656", Q: "\u2655", K: "\u2654",
-};
-
-/**
- * Computes captured pieces by comparing initial piece counts to current board.
- */
-function getCapturedPieces(fen) {
-  const initial = { P: 8, N: 2, B: 2, R: 2, Q: 1, K: 1, p: 8, n: 2, b: 2, r: 2, q: 1, k: 1 };
-  const board = fen.split(" ")[0];
-  const current = {};
-  for (const ch of board) {
-    if (/[pnbrqkPNBRQK]/.test(ch)) {
-      current[ch] = (current[ch] || 0) + 1;
-    }
-  }
-  const whiteCaptured = []; // black pieces captured by white
-  const blackCaptured = []; // white pieces captured by black
-  for (const piece of "qrbnp") {
-    const diff = (initial[piece] || 0) - (current[piece] || 0);
-    for (let i = 0; i < diff; i++) whiteCaptured.push(piece);
-  }
-  for (const piece of "QRBNP") {
-    const diff = (initial[piece] || 0) - (current[piece] || 0);
-    for (let i = 0; i < diff; i++) blackCaptured.push(piece);
-  }
-  return { whiteCaptured, blackCaptured };
-}
-
-/**
- * Renders a row of captured piece icons.
- */
-function CapturedRow({ pieces, label }) {
-  if (pieces.length === 0) return null;
-  return (
-    <span className="text-base leading-none tracking-tight" data-testid={`captured-${label}`}>
-      {pieces.map((p, i) => (
-        <span key={i} className="opacity-70">{PIECE_UNICODE[p]}</span>
-      ))}
-    </span>
-  );
-}
-
 export default function ChessBoard({
   fen,
   orientation,
@@ -65,8 +20,6 @@ export default function ChessBoard({
       return new Chess();
     }
   }, [fen]);
-
-  const { whiteCaptured, blackCaptured } = useMemo(() => getCapturedPieces(fen), [fen]);
 
   const squareStyles = useMemo(() => {
     const styles = {};
@@ -164,35 +117,25 @@ export default function ChessBoard({
   );
 
   // Top captured = opponent's captured pieces, bottom = yours
-  const topCaptured = orientation === "white" ? whiteCaptured : blackCaptured;
-  const bottomCaptured = orientation === "white" ? blackCaptured : whiteCaptured;
-
   return (
     <div data-testid="chess-board">
-      <div className="flex items-start gap-3">
-        <div className="flex-1 min-w-0">
-          <Chessboard
-            options={{
-              position: fen,
-              boardOrientation: orientation,
-              onPieceDrop,
-              onPieceDrag,
-              onSquareClick,
-              canDragPiece,
-              squareStyles,
-              darkSquareStyle: { backgroundColor: "#B58863" },
-              lightSquareStyle: { backgroundColor: "#F0D9B5" },
-              boardStyle: { borderRadius: "2px", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" },
-              animationDurationInMs: 200,
-            }}
-          />
-        </div>
-        {/* Captured pieces column */}
-        <div className="flex flex-col justify-between py-1 min-w-[24px]" style={{ height: "100%" }} data-testid="captured-pieces">
-          <CapturedRow pieces={topCaptured} label="top" />
-          <CapturedRow pieces={bottomCaptured} label="bottom" />
-        </div>
-      </div>
+      <Chessboard
+        options={{
+          position: fen,
+          boardOrientation: orientation,
+          onPieceDrop,
+          onPieceDrag,
+          onSquareClick,
+          canDragPiece,
+          allowDragging: true,
+          dragActivationDistance: 3,
+          squareStyles,
+          darkSquareStyle: { backgroundColor: "#B58863" },
+          lightSquareStyle: { backgroundColor: "#F0D9B5" },
+          boardStyle: { borderRadius: "2px", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" },
+          animationDurationInMs: 200,
+        }}
+      />
     </div>
   );
 }
