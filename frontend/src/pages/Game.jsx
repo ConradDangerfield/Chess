@@ -227,15 +227,15 @@ export default function Game({ discordUsername }) {
         {/* ===== Board Panel ===== */}
         <div className="flex flex-col items-center justify-center p-4 lg:p-6 min-h-0">
           {/* Top bar */}
-          <div className="w-full flex items-center justify-between mb-3" style={{ maxWidth: "min(85vh, 100%)" }}>
-            <div className="flex items-center gap-2">
+          <div className="w-full flex items-center justify-between flex-wrap gap-y-2 gap-x-2 mb-3" style={{ maxWidth: "min(85vh, 100%)" }}>
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     data-testid="back-home-button"
                     variant="ghost"
                     size="icon"
-                    className="rounded-sm"
+                    className="rounded-sm h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
                     onClick={() => navigate("/")}
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -249,23 +249,23 @@ export default function Game({ discordUsername }) {
                     type="button"
                     onClick={copyRoomLink}
                     data-testid="room-id-badge"
-                    className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border border-[#0A0A0A]/15 bg-[#F4F4F5] hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A] transition-colors duration-200"
+                    className="group inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-sm border border-[#0A0A0A]/15 bg-[#F4F4F5] hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A] transition-colors duration-200 min-w-0"
                   >
-                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-white/70">
+                    <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-white/70">
                       Room
                     </span>
-                    <span className="font-mono text-base font-semibold tracking-wider">
+                    <span className="font-mono text-sm sm:text-base font-semibold tracking-wider truncate">
                       {roomId}
                     </span>
-                    <Copy className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+                    <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60 group-hover:opacity-100 flex-shrink-0" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>Click to copy room link</TooltipContent>
               </Tooltip>
               {connected ? (
-                <Wifi className="w-3.5 h-3.5 text-green-600" />
+                <Wifi className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
               ) : (
-                <WifiOff className="w-3.5 h-3.5 text-red-500" />
+                <WifiOff className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
               )}
 
               {/* Volume control */}
@@ -275,7 +275,7 @@ export default function Game({ discordUsername }) {
                     data-testid="volume-toggle-button"
                     variant="ghost"
                     size="icon"
-                    className="rounded-sm h-7 w-7"
+                    className="rounded-sm h-7 w-7 flex-shrink-0"
                   >
                     {muted ? (
                       <VolumeX className="w-3.5 h-3.5 text-muted-foreground" />
