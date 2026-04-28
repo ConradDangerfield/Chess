@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 
 const PRODUCT_URL =
-  "https://shop.conraddangerfield.com/products/the-king-s-way-tee?variant=50115434512604";
+  "https://shop.conraddangerfield.com/products/end-game-tee-classic-tee?variant=50207577669852";
 const PRODUCT_IMAGE = "/kings-way-tee.png";
 
 function getResultText(status) {
