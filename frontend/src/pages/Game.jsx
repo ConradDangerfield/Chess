@@ -9,6 +9,7 @@ import PlayerInfo from "@/components/PlayerInfo";
 import UsernameModal from "@/components/UsernameModal";
 import GameOverModal from "@/components/GameOverModal";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -245,20 +246,15 @@ export default function Game({ discordUsername }) {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
-                    type="button"
+                  <Badge
+                    variant="outline"
+                    className="font-mono text-xs rounded-sm cursor-pointer hover:bg-[#F4F4F5] transition-colors duration-200"
                     onClick={copyRoomLink}
                     data-testid="room-id-badge"
-                    className="group inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-sm border border-[#0A0A0A]/15 bg-[#F4F4F5] hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A] transition-colors duration-200 min-w-0"
                   >
-                    <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-white/70">
-                      Room
-                    </span>
-                    <span className="font-mono text-sm sm:text-base font-semibold tracking-wider truncate">
-                      {roomId}
-                    </span>
-                    <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60 group-hover:opacity-100 flex-shrink-0" />
-                  </button>
+                    {roomId}
+                    <Copy className="w-3 h-3 ml-1.5" />
+                  </Badge>
                 </TooltipTrigger>
                 <TooltipContent>Click to copy room link</TooltipContent>
               </Tooltip>
